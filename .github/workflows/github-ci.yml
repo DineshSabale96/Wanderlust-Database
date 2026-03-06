@@ -1,0 +1,48 @@
+name: Database CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  database-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install MySQL Client
+        run: sudo apt-get install mysql-client -y
+
+      - name: Validate SQL Scripts
+        run: |
+          for file in *.sql
+          do
+            echo "Validating $file"
+            cat $file
+          done
+
+  docker-build-push:
+    needs: database-validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: DockerHub Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Database Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/wanderlust-db:latest
