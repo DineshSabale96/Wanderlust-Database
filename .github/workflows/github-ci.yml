@@ -2,7 +2,7 @@ name: Database CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ prod ]
 
 jobs:
   database-validation:
