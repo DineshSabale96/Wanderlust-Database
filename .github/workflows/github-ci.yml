@@ -5,26 +5,7 @@ on:
     branches: [ prod ]
 
 jobs:
-  database-validation:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install MySQL Client
-        run: sudo apt-get install mysql-client -y
-
-      - name: Validate SQL Scripts
-        run: |
-          for file in *.sql
-          do
-            echo "Validating $file"
-            cat $file
-          done
-
   docker-build-push:
-    needs: database-validation
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +21,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Database Image
+      - name: Build and Push MongoDB Image
         uses: docker/build-push-action@v5
         with:
           context: .
